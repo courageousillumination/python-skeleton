@@ -2,7 +2,8 @@
 
 from invoke import Collection, run, task
 
-PYTHON_FILES = ['tasks.py', 'example']
+PYTHON_PACKAGES = ['example']
+PYTHON_FILES = ['tasks.py'] + PYTHON_PACKAGES
 
 
 # Context is required by tasks even if it's not used.
@@ -52,6 +53,14 @@ def wip(context):
     """Run any work in progress tests."""
     run('nosetests -c config/noserc -a "wip"')
 
+
+@task
+def coverage(context):
+    """Run all tests with coverage options."""
+    packages = ','.join(PYTHON_PACKAGES)
+    run('nosetests -c config/noserc --with-coverage --cover-branches '
+        '--cover-package={}'.format(packages))
+
 # pylint: disable=invalid-name
-test = Collection(everything, unit, integration, end_to_end, wip)
+test = Collection(everything, unit, integration, end_to_end, wip, coverage)
 ns = Collection(lint, fix, test=test)
