@@ -23,6 +23,10 @@ def lint(context):
     run('pylint --rcfile=config/pylintrc --reports=n {}'.format(files),
         warn=True)
 
+@task
+def build_docs(context):
+    """Build docs."""
+    run('sphinx-build -c docs -b html docs docs/_build')
 
 @task
 def everything(context):
@@ -63,4 +67,4 @@ def coverage(context):
 
 # pylint: disable=invalid-name
 test = Collection(everything, unit, integration, end_to_end, wip, coverage)
-ns = Collection(lint, fix, test=test)
+ns = Collection(lint, fix, build_docs, test=test)
