@@ -8,11 +8,10 @@ PYTHON_FILES = ['tasks.py'] + PYTHON_PACKAGES
 
 # Context is required by tasks even if it's not used.
 # pylint: disable=unused-argument
-@task
-def fix(context):
+@task(name='format')
+def format_python(context):
     """Run autoformating programs."""
-    run('yapf --style=config/python_style --in-place -r --exclude="*env*" .',
-        warn=True)
+    run('yapf --style=config/python_style --in-place -r --exclude="*env*" .', warn=True)
 
 
 @task
@@ -20,13 +19,15 @@ def lint(context):
     """Run linters."""
     files = ' '.join(PYTHON_FILES)
     # Suppres reports since they'll just clutter things up.
-    run('pylint --rcfile=config/pylintrc --reports=n {}'.format(files),
-        warn=True)
+    run('pylint --rcfile=config/pylintrc --reports=n {}'.format(files), warn=True)
+    run('mypy --ignore-missing-imports {}'.format(files), warn=True)
+
 
 @task
 def build_docs(context):
     """Build docs."""
     run('sphinx-build -c docs -b html docs docs/_build')
+
 
 @task
 def everything(context):
@@ -65,6 +66,7 @@ def coverage(context):
     run('nosetests -c config/noserc --with-coverage --cover-branches '
         '--cover-package={}'.format(packages))
 
+
 # pylint: disable=invalid-name
 test = Collection(everything, unit, integration, end_to_end, wip, coverage)
-ns = Collection(lint, fix, build_docs, test=test)
+ns = Collection(lint, format_python, build_docs, test=test)

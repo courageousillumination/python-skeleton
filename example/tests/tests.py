@@ -10,6 +10,11 @@ def return_true():
     return True
 
 
+def function_with_wrong_return() -> None:
+    """A function that demonstrates a bug caught by mypy."""
+    return 42
+
+
 class SimpleTestCase(TestCase):
     """A simple test case to show the different types of tests."""
 
